@@ -6,7 +6,7 @@
 
 class demo_parser
 {
-public:
+private:
     struct demoheader_s
     {
         char header[8];
@@ -22,6 +22,7 @@ public:
         std::int32_t signon_length;
     };
 
+public:
     class demo
     {
     public:
@@ -38,4 +39,3 @@ public:
         }
     };
 };
-
