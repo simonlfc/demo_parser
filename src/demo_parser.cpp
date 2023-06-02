@@ -1,4 +1,5 @@
 #include "demo_parser.hpp"
+using namespace demo_parser;
 
 int main(int argc, char* argv[])
 {
@@ -14,8 +15,9 @@ int main(int argc, char* argv[])
         std::ifstream input(file);
         if (input.is_open())
         {
-            const auto* demo = new demo_parser::demo(input);
-            printf("%s on %s for %s at %i tickrate", demo->header.map, demo->header.server, demo->duration.c_str(), demo->tickrate);
+            auto* demo = new srcdemo(input);
+            printf("servername: %s\n", demo->server);
+            demo->analyse();
         }
     }
 
