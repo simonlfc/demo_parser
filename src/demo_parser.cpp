@@ -18,6 +18,9 @@ int main(int argc, char* argv[])
             auto* demo = new srcdemo(input);
             printf("servername: %s\n", demo->server);
             demo->analyse();
+
+
+            delete demo;
         }
     }
 

@@ -24,13 +24,17 @@ namespace demo_parser
     class srcdemo : public demoheader_s
     {
     public:
-        std::ifstream input;
         std::int32_t tickrate;
 
-        srcdemo(std::ifstream& input)
+        srcdemo(std::ifstream& in) : input(in)
         {
             input.read((char*)&header, sizeof(demoheader_s));
             tickrate = static_cast<std::int32_t>(playback_ticks / playback_time);
+        }
+
+        ~srcdemo()
+        {
+            input.close();
         }
 
         void analyse()
@@ -38,5 +42,8 @@ namespace demo_parser
             // protobuf ill see you another day
             printf("analysing...\n");
         }
+
+    private:
+        std::ifstream& input;
     };
 };
