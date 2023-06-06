@@ -19,6 +19,20 @@ struct demoheader_s
     std::int32_t signon_length;
 };
 
+enum commands
+{
+    signon = 1,
+    packet,
+    synctick,
+    consolecmd,
+    usercmd,
+    datatables,
+    stop,
+    customdata,
+    stringtables,
+    lastcmd = stringtables
+};
+
 namespace demo_parser
 {
     class srcdemo : public demoheader_s
@@ -28,7 +42,12 @@ namespace demo_parser
 
         srcdemo(std::ifstream& in) : input(in)
         {
-            input.read((char*)&header, sizeof(demoheader_s));
+            input.seekg(0, std::ios::end);
+            length = static_cast<std::uint32_t>(input.tellg());
+            input.seekg(0, std::ios::beg);
+
+            input.read(reinterpret_cast<char*>(&header), sizeof(demoheader_s));
+            length -= sizeof(demoheader_s);
             tickrate = static_cast<std::int32_t>(playback_ticks / playback_time);
         }
 
@@ -39,11 +58,63 @@ namespace demo_parser
 
         void analyse()
         {
-            // protobuf ill see you another day
             printf("analysing...\n");
+
+            buffer.resize(length);
+            input.read(buffer.data(), length);
+
+            bool eof = false;
+            while (!eof)
+            {
+                std::int32_t tick = 0;
+                unsigned char cmd, playerslot;
+                read_command_header(cmd, tick, playerslot);
+                printf("command: %i, tick, %i, playerslot: %i\n", cmd, tick, playerslot);
+
+                switch (cmd)
+                {
+                case commands::signon:
+                case commands::packet:
+                    break;
+                case commands::synctick:
+                    break;
+                case commands::consolecmd:
+                    break;
+                case commands::usercmd:
+                    break;
+                case commands::datatables:
+                    break;
+                case commands::stop:
+                    eof = true;
+                    break;
+                case commands::stringtables:
+                    break;
+                default:
+                    break;
+                }
+            }
         }
 
     private:
         std::ifstream& input;
+        std::string buffer;
+        std::size_t pos = 0;
+        std::uint32_t length;
+
+        void read_command_header(unsigned char& cmd, std::int32_t& tick, unsigned char& playerslot)
+        {
+            cmd = buffer[pos++];
+
+            if (cmd <= 0)
+            {
+                cmd = commands::stop;
+                return;
+            }
+
+            tick = *reinterpret_cast<std::int32_t*>(&buffer[pos]);
+            pos += sizeof(std::int32_t);
+
+            playerslot = buffer[pos++];
+        }
     };
 };
